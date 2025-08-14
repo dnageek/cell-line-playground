@@ -17,7 +17,10 @@ library(dplyr)
 
 # Helper to list available versions
 get_versions <- function() {
-  data_dir <- "../data/DepMap"
+  data_dir <- "data/DepMap"  # Updated path for deployment
+  if (!dir.exists(data_dir)) {
+    data_dir <- "../data/DepMap"  # Fallback for local development
+  }
   versions <- list.dirs(data_dir, full.names = FALSE, recursive = FALSE)
   versions[versions != ""]
 }
@@ -50,14 +53,22 @@ server <- function(input, output, session) {
   # Reactive to load Model.csv
   model_data <- reactive({
     req(input$version)
-    path <- file.path("../data/DepMap", input$version, "Model.csv")
+    data_dir <- "data/DepMap"  # For deployment
+    if (!dir.exists(data_dir)) {
+      data_dir <- "../data/DepMap"  # For local development
+    }
+    path <- file.path(data_dir, input$version, "Model.csv")
     read_csv(path, show_col_types = FALSE)
   })
 
   # Reactive to load OmicsSomaticMutations.csv
   mutation_data <- reactive({
     req(input$version)
-    path <- file.path("../data/DepMap", input$version, "OmicsSomaticMutations.csv")
+    data_dir <- "data/DepMap"  # For deployment
+    if (!dir.exists(data_dir)) {
+      data_dir <- "../data/DepMap"  # For local development
+    }
+    path <- file.path(data_dir, input$version, "OmicsSomaticMutations.csv")
     read_csv(path, show_col_types = FALSE)
   })
 

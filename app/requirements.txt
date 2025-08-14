@@ -1,2 +1,8 @@
 shiny
 shinylive
+readr
+dplyr
+heatmaply
+tidyr
+plotly
+viridisLite
