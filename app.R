@@ -1,26 +1,10 @@
-library(shinylive)
-
-ui <- fluidPage(
-  titlePanel("Cell Line Playground"),
-  # Add UI components here
-)
-
-server <- function(input, output, session) {
-  # Add server logic here
-}
-
-shinyApp(ui, server)
 library(shiny)
-library(shinylive)
 library(readr)
 library(dplyr)
 
 # Helper to list available versions
 get_versions <- function() {
-  data_dir <- "data/DepMap"  # Updated path for deployment
-  if (!dir.exists(data_dir)) {
-    data_dir <- "../data/DepMap"  # Fallback for local development
-  }
+  data_dir <- "data/DepMap"  # Path for deployment and root directory
   versions <- list.dirs(data_dir, full.names = FALSE, recursive = FALSE)
   versions[versions != ""]
 }
@@ -50,25 +34,18 @@ server <- function(input, output, session) {
 
   # For R CMD check: declare global variables
   utils::globalVariables(c("StrippedCellLineName", "HugoSymbol", "VariantInfo", "HasMutation", "ModelID"))
+  
   # Reactive to load Model.csv
   model_data <- reactive({
     req(input$version)
-    data_dir <- "data/DepMap"  # For deployment
-    if (!dir.exists(data_dir)) {
-      data_dir <- "../data/DepMap"  # For local development
-    }
-    path <- file.path(data_dir, input$version, "Model.csv")
+    path <- file.path("data/DepMap", input$version, "Model.csv")
     read_csv(path, show_col_types = FALSE)
   })
 
   # Reactive to load OmicsSomaticMutations.csv
   mutation_data <- reactive({
     req(input$version)
-    data_dir <- "data/DepMap"  # For deployment
-    if (!dir.exists(data_dir)) {
-      data_dir <- "../data/DepMap"  # For local development
-    }
-    path <- file.path(data_dir, input$version, "OmicsSomaticMutations.csv")
+    path <- file.path("data/DepMap", input$version, "OmicsSomaticMutations.csv")
     read_csv(path, show_col_types = FALSE)
   })
 
