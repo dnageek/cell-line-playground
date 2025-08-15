@@ -1,10 +1,17 @@
 library(shiny)
 library(readr)
 library(dplyr)
+library(heatmaply)
+library(tidyr)
+library(plotly)
+
+# For R CMD check: declare global variables
+utils::globalVariables(c("StrippedCellLineName", "HugoSymbol", "VariantInfo", "HasMutation", "ModelID"))
 
 # Helper to list available versions
 get_versions <- function() {
-  data_dir <- "data/DepMap"  # Path for deployment and root directory
+  data_dir <- "data/DepMap"
+  if (!dir.exists(data_dir)) return(character(0))
   versions <- list.dirs(data_dir, full.names = FALSE, recursive = FALSE)
   versions[versions != ""]
 }
@@ -28,17 +35,14 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  library(heatmaply)
-  library(tidyr)
-  library(plotly)
-
-  # For R CMD check: declare global variables
-  utils::globalVariables(c("StrippedCellLineName", "HugoSymbol", "VariantInfo", "HasMutation", "ModelID"))
-  
   # Reactive to load Model.csv
   model_data <- reactive({
     req(input$version)
     path <- file.path("data/DepMap", input$version, "Model.csv")
+    if (!file.exists(path)) {
+      showNotification("Model.csv file not found for selected version", type = "error")
+      return(NULL)
+    }
     read_csv(path, show_col_types = FALSE)
   })
 
@@ -46,6 +50,10 @@ server <- function(input, output, session) {
   mutation_data <- reactive({
     req(input$version)
     path <- file.path("data/DepMap", input$version, "OmicsSomaticMutations.csv")
+    if (!file.exists(path)) {
+      showNotification("OmicsSomaticMutations.csv file not found for selected version", type = "error")
+      return(NULL)
+    }
     read_csv(path, show_col_types = FALSE)
   })
 
